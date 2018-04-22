@@ -43,12 +43,12 @@ class BchCoder:
             return msg_poly.all_coeffs()[:self.k]
 
         S = Matrix(self.t, self.t, lambda i, j: s[i + j])
-        S_det = S.det().set_domain(GF(2))
+        S_det = (S.det()%self.r_poly).set_domain(GF(2))
         log.debug("S_det: {}".format(S_det))
 
         while S_det.is_zero:
             S = S[:-1, :-1]
-            S_det = S.det().set_domain(GF(2))
+            S_det = (S.det()%self.r_poly).set_domain(GF(2))
             log.debug("S_det: {} (t={})".format(S_det, S.shape[0]))
 
         log.debug("S: {}".format(S))
@@ -71,7 +71,7 @@ class BchCoder:
 
         result = msg_poly.all_coeffs()
         for i in range(1, self.n + 1):
-            test_poly = (Poly(Poly(l_poly, x).eval(alpha ** i), alpha) % self.r_poly).trunc(self.q)
+            test_poly = (Poly(Poly(l_poly, x).eval(alpha ** i), alpha) % self.r_poly).set_domain(GF(2))
             log.debug("testing: {}".format(test_poly))
             if test_poly.is_zero:
                 log.info("REPAIRED ERROR ON {}th POSITION".format(i))
