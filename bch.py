@@ -4,7 +4,7 @@
 Usage:
   bch.py [options] enc CODE_FILE [FILE]
   bch.py [options] dec CODE_FILE [FILE]
-  bch.py [options] gen N Q B D CODE_FILE
+  bch.py [options] gen N B D CODE_FILE
   bch.py (-h | --help)
   bch.py --version
 
