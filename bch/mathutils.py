@@ -35,7 +35,7 @@ def minimal_poly(i, n, q, irr_poly):
     return None
 
 
-def flatten_frac(muls, p):
+def flatten_frac(muls, m, p):
     log.debug("Dividing: {}".format(muls))
     if len(muls.args) != 2:
         raise Exception("Wrong case")
@@ -58,11 +58,13 @@ def flatten_frac(muls, p):
     if (inv.args[1] > 0):
         print(inv.args)
         raise Exception("Wrong case")
-    inv_poly = (Poly(inv.args[0] ** -inv.args[1])).set_domain(GF(p))
+    inv_poly = (Poly(inv.args[0] ** -inv.args[1]) % m).set_domain(GF(p))
+    if inv_poly.is_zero:
+        inv_poly = m
     add_poly = (Poly(add)).set_domain(GF(p))
     log.debug("dividing {} by {}".format(add_poly, inv_poly))
     div, rest = gf_div([e.p for e in add_poly.all_coeffs()], [e.p for e in inv_poly.all_coeffs()], p, ZZ)
     log.debug("div: {}; rest: {}".format(div, rest))
     result = Poly([ee.numerator for ee in div], alpha).set_domain(GF(p))
     log.debug("Dividing result: {}".format(result))
-    return result
+    return result % m

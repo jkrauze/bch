@@ -42,7 +42,9 @@ class BchCoder:
             error += (p % self.r_poly)
         log.debug("error: {}".format(error))
         if error.is_zero:
-            return msg_poly.all_coeffs()[:self.k]
+            coeffs = msg_poly.all_coeffs()
+            n = self.n - len(coeffs)
+            return np.pad(np.array(coeffs), (n, 0), 'constant')[:self.k]
 
         S = Matrix(self.t, self.t, lambda i, j: s[i + j])
         S_det = (S.det() % self.r_poly).set_domain(GF(2))
@@ -68,16 +70,19 @@ class BchCoder:
         l_poly = Poly(1, x).set_domain(GF(2))
         log.debug("l(0): {}".format(l_poly))
         for i, p in enumerate(L[::-1], start=1):
-            l_poly += Poly(flatten_frac(p, self.q).as_expr() * x ** i, x, alpha).set_domain(GF(2))
+            l_poly += Poly(flatten_frac(p, self.r_poly, self.q).as_expr() * x ** i, x, alpha).set_domain(GF(2))
             log.debug("l({}): {}".format(i, l_poly))
 
-        result = msg_poly.all_coeffs()
-        for i in range(1, self.n + 1):
+        coeffs = msg_poly.all_coeffs()
+        n = self.n - len(coeffs)
+        coeffs = np.pad(np.array(coeffs), (n, 0), 'constant')
+        for i in range(i, self.n+1):
             test_poly = (Poly(Poly(l_poly, x).eval(alpha ** i), alpha) % self.r_poly).set_domain(GF(2))
             log.debug("testing: {}".format(test_poly))
             if test_poly.is_zero:
                 log.info("REPAIRED ERROR ON {}th POSITION".format(i))
-                result[i - 1] = 1 if result[i - 1] == 0 else 0
+                coeffs[i-1] = 1 if coeffs[i-1] == 0 else 0
 
-        log.debug("Message polynom after decoding: {}".format(result))
-        return result[:self.k]
+        log.debug("Message polynom after decoding: {}".format(coeffs))
+
+        return coeffs[:self.k]
