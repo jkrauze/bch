@@ -40,18 +40,24 @@ def generate(n, b, d, code_file):
 
 def encode(code_file, input_arr):
     code = np.load(code_file)
-    bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha), Poly(code['g'][::-1], x))
-    if len(input_arr)>bch.k:
+    bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha),
+                   Poly(code['g'][::-1], x))
+
+    if len(input_arr) > bch.k:
         raise Exception("Input is too large for current BCH code (max: {})".format(bch.k))
-    return bch.encode(Poly(input_arr[::-1], x)).all_coeffs()[::-1]
+    return bch.encode(Poly(np.pad(input_arr, (0, bch.k - len(input_arr)), 'constant')[::-1], x)).all_coeffs()[::-1]
 
 
 def decode(code_file, input_arr):
     code = np.load(code_file)
-    bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha), Poly(code['g'][::-1], x))
-    if len(input_arr)>bch.n:
+    bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha),
+                   Poly(code['g'][::-1], x))
+    if (len(input_arr) + 1 == bch.n):
+        log.info("Trimming input to {}".format(bch.n))
+        input_arr = input_arr[:-1]
+    elif len(input_arr) > bch.n:
         raise Exception("Input is too large for current BCH code (max: {})".format(bch.n))
-    return bch.decode(Poly(input_arr[::-1], x))[::-1]
+    return bch.decode(Poly(np.pad(input_arr, (0, bch.n - len(input_arr)), 'constant')[::-1], x))[::-1]
 
 
 if __name__ == '__main__':

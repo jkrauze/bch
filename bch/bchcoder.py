@@ -22,6 +22,7 @@ class BchCoder:
                  .format(self.n, self.k, self.q, self.m, self.b, self.d, self.g_poly))
 
     def encode(self, msg_poly):
+        log.info("msg: {}".format(msg_poly))
         shift_m_poly = msg_poly * Poly(x ** (self.n - self.k), x)
         log.info("shift_m: {}".format(shift_m_poly))
         r_poly = (shift_m_poly % self.g_poly).trunc(self.q)
@@ -38,18 +39,18 @@ class BchCoder:
 
         error = Poly(0, alpha)
         for p in s:
-            error += (p%self.r_poly)
+            error += (p % self.r_poly)
         log.debug("error: {}".format(error))
         if error.is_zero:
             return msg_poly.all_coeffs()[:self.k]
 
         S = Matrix(self.t, self.t, lambda i, j: s[i + j])
-        S_det = (S.det()%self.r_poly).set_domain(GF(2))
+        S_det = (S.det() % self.r_poly).set_domain(GF(2))
         log.debug("S_det: {}".format(S_det))
 
-        while S_det.is_zero and S.shape[0]>1:
+        while S_det.is_zero and S.shape[0] > 1:
             S = S[:-1, :-1]
-            S_det = (S.det()%self.r_poly).set_domain(GF(2))
+            S_det = (S.det() % self.r_poly).set_domain(GF(2))
             log.debug("S_det: {} (t={})".format(S_det, S.shape[0]))
 
         log.debug("S: {}".format(S))
