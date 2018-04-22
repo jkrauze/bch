@@ -12,7 +12,7 @@ class BchCoder:
         self.n = n
         self.b = b
         self.d = d
-        self.r_poly = r_poly
+        self.r_poly = r_poly.set_domain(GF(2))
         self.g_poly = g_poly
         self.q = 2
         self.m = order(self.q, self.n)
@@ -43,11 +43,13 @@ class BchCoder:
             return msg_poly.all_coeffs()[:self.k]
 
         S = Matrix(self.t, self.t, lambda i, j: s[i + j])
-        S_det = (S.det() % self.r_poly).trunc(self.q)
+        S_det = S.det().set_domain(GF(2))
+        log.debug("S_det: {}".format(S_det))
 
         while S_det.is_zero:
             S = S[:-1, :-1]
-            S_det = (S.det() % self.r_poly).trunc(self.q)
+            S_det = S.det().set_domain(GF(2))
+            log.debug("S_det: {} (t={})".format(S_det, S.shape[0]))
 
         log.debug("S: {}".format(S))
 
