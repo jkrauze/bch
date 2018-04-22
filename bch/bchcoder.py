@@ -32,7 +32,7 @@ class BchCoder:
         log.debug("msg: {}".format(msg_poly))
         s = []
         for i in range(self.b, self.b + self.d - 1):
-            s.append((Poly(msg_poly.eval(alpha ** i), alpha) % self.r_poly).set_domain(GF(2)))
+            s.append((Poly(msg_poly.eval(alpha ** i), alpha)).set_domain(GF(2)))
 
         log.debug("s: {}".format(s))
 

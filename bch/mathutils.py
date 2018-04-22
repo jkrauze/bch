@@ -44,12 +44,11 @@ def flatten_frac(muls, m, p):
     if type(add) == Pow:
         inv, add = add, inv
     log.debug("num: {}; denum: {}".format(add, inv))
-    if type(add) != Add and type(add) != Symbol:
+    if type(add) != Add and type(add) != Symbol and type(add) != Pow:
         log.debug(type(add))
         add = int(add)
         if add < 0:
-            log.debug("dividing 1 by {}".format(((Poly(muls.args[0] ** -add)).set_domain(GF(p)) % m)))
-            div, rest = gf_div([1], [e.p for e in ((Poly(muls.args[0] ** -add)).set_domain(GF(p)) % m).all_coeffs()], p,
+            div, rest = gf_div([1], [e.p for e in (Poly(muls.args[0] ** -add)).set_domain(GF(p)).all_coeffs()], p,
                                ZZ)
             log.debug("div: {}; rest: {}".format(div, rest))
             result = Poly([ee.numerator for ee in div], alpha)
@@ -59,7 +58,7 @@ def flatten_frac(muls, m, p):
     if (inv.args[1] > 0):
         print(inv.args)
         raise Exception("Wrong case")
-    inv_poly = (Poly((inv.args[0] ** -inv.args[1])) % m).set_domain(GF(p))
+    inv_poly = (Poly(inv.args[0] ** -inv.args[1])).set_domain(GF(p))
     add_poly = (Poly(add)).set_domain(GF(p))
     log.debug("dividing {} by {}".format(add_poly, inv_poly))
     div, rest = gf_div([e.p for e in add_poly.all_coeffs()], [e.p for e in inv_poly.all_coeffs()], p, ZZ)
