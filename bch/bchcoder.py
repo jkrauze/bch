@@ -63,15 +63,15 @@ class BchCoder:
         L = S.rref()[0].col(t)
         log.debug("L: {}".format(L))
 
-        l_poly = Poly(1, x)
-        for i, p in enumerate(L[::-1]):
-            l_poly += Poly(flatten_frac(p, self.r_poly, self.q) * x ** (i + 1), x)
-        l_poly = l_poly.trunc(self.q)
-        log.debug("l: {}".format(l_poly))
+        l_poly = Poly(1, x).set_domain(GF(2))
+        log.debug("l(0): {}".format(l_poly))
+        for i, p in enumerate(L[::-1], start=1):
+            l_poly += Poly(flatten_frac(p, self.q).as_expr() * x ** i, x, alpha).set_domain(GF(2))
+            log.debug("l({}): {}".format(i, l_poly))
 
         result = msg_poly.all_coeffs()
         for i in range(1, self.n + 1):
-            test_poly = (Poly(l_poly.eval(alpha ** i)) % self.r_poly).trunc(self.q)
+            test_poly = (Poly(Poly(l_poly, x).eval(alpha ** i), alpha) % self.r_poly).trunc(self.q)
             log.debug("testing: {}".format(test_poly))
             if test_poly.is_zero:
                 log.info("REPAIRED ERROR ON {}th POSITION".format(i))
