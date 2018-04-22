@@ -1,7 +1,7 @@
 import numpy as np
 from sympy.abc import x, alpha
 from sympy.polys.galoistools import gf_div
-from sympy import ZZ, GF, Poly, Pow, Add
+from sympy import ZZ, GF, Poly, Pow, Add, Symbol
 import logging
 
 log = logging.getLogger("bchcodegenerator")
@@ -43,16 +43,28 @@ def flatten_frac(muls, m, p):
     add = muls.args[1]
     if type(add) == Pow:
         inv, add = add, inv
-    if type(add) != Add:
-        raise Exception("Wrong case")
+    log.debug("num: {}; denum: {}".format(add, inv))
+    if type(add) != Add and type(add) != Symbol:
+        log.debug(type(add))
+        add = int(add)
+        if add < 0:
+            log.debug("dividing 1 by {}".format(((Poly(muls.args[0] ** -add)).set_domain(GF(p)) % m)))
+            div, rest = gf_div([1], [e.p for e in ((Poly(muls.args[0] ** -add)).set_domain(GF(p)) % m).all_coeffs()], p,
+                               ZZ)
+            log.debug("div: {}; rest: {}".format(div, rest))
+            result = Poly([ee.numerator for ee in div], alpha)
+            result = (result % m).trunc(p)
+            log.debug("Dividing result: {}".format(result))
+            return result
     if (inv.args[1] > 0):
         print(inv.args)
         raise Exception("Wrong case")
-    inv_poly = (Poly(inv.args[0] ** -inv.args[1])).set_domain(GF(p))
+    inv_poly = (Poly((inv.args[0] ** -inv.args[1])) % m).set_domain(GF(p))
     add_poly = (Poly(add)).set_domain(GF(p))
-    result = Poly([ee.numerator for ee in
-                   gf_div([e.p for e in add_poly.all_coeffs()], [e.p for e in inv_poly.all_coeffs()], p, ZZ)[
-                       0]],
-                  alpha).trunc(p)
+    log.debug("dividing {} by {}".format(add_poly, inv_poly))
+    div, rest = gf_div([e.p for e in add_poly.all_coeffs()], [e.p for e in inv_poly.all_coeffs()], p, ZZ)
+    log.debug("div: {}; rest: {}".format(div, rest))
+    result = Poly([ee.numerator for ee in div], alpha)
+    result = (result % m).trunc(p)
     log.debug("Dividing result: {}".format(result))
     return result
