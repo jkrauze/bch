@@ -38,7 +38,8 @@ class BchCoder:
 
         error = Poly(0, alpha)
         for p in s:
-            error += p
+            error += (p%self.r_poly)
+        log.debug("error: {}".format(error))
         if error.is_zero:
             return msg_poly.all_coeffs()[:self.k]
 
