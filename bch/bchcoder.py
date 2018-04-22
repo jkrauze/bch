@@ -46,7 +46,7 @@ class BchCoder:
         S_det = (S.det()%self.r_poly).set_domain(GF(2))
         log.debug("S_det: {}".format(S_det))
 
-        while S_det.is_zero:
+        while S_det.is_zero and S.shape[0]>1:
             S = S[:-1, :-1]
             S_det = (S.det()%self.r_poly).set_domain(GF(2))
             log.debug("S_det: {} (t={})".format(S_det, S.shape[0]))
