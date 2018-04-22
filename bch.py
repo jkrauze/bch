@@ -52,7 +52,7 @@ def decode(code_file, input_arr):
     code = np.load(code_file)
     bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha),
                    Poly(code['g'][::-1], x))
-    if (len(input_arr) + 1 == bch.n):
+    if (len(input_arr) - 1 == bch.n):
         log.info("Trimming input to {}".format(bch.n))
         input_arr = input_arr[:-1]
     elif len(input_arr) > bch.n:
