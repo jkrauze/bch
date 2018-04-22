@@ -76,12 +76,12 @@ class BchCoder:
         coeffs = msg_poly.all_coeffs()
         n = self.n - len(coeffs)
         coeffs = np.pad(np.array(coeffs), (n, 0), 'constant')
-        for i in range(i, self.n+1):
+        for i in range(i, self.n + 1):
             test_poly = (Poly(Poly(l_poly, x).eval(alpha ** i), alpha) % self.r_poly).set_domain(GF(2))
             log.debug("testing: {}".format(test_poly))
             if test_poly.is_zero:
-                log.info("REPAIRED ERROR ON {}th POSITION".format(i))
-                coeffs[i-1] = 1 if coeffs[i-1] == 0 else 0
+                log.info("REPAIRED ERROR ON {}th POSITION".format(self.n - i))
+                coeffs[i - 1] = 1 if coeffs[i - 1] == 0 else 0
 
         log.debug("Message polynom after decoding: {}".format(coeffs))
 
