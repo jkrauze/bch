@@ -41,12 +41,16 @@ def generate(n, b, d, code_file):
 def encode(code_file, input_arr):
     code = np.load(code_file)
     bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha), Poly(code['g'][::-1], x))
+    if len(input_arr)>bch.k:
+        raise Exception("Input is too large for current BCH code (max: {})".format(bch.k))
     return bch.encode(Poly(input_arr[::-1], x)).all_coeffs()[::-1]
 
 
 def decode(code_file, input_arr):
     code = np.load(code_file)
     bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha), Poly(code['g'][::-1], x))
+    if len(input_arr)>bch.n:
+        raise Exception("Input is too large for current BCH code (max: {})".format(bch.n))
     return bch.decode(Poly(input_arr[::-1], x))[::-1]
 
 
@@ -80,12 +84,12 @@ if __name__ == '__main__':
             input_arr = eval(input)
         else:
             input_arr = np.unpackbits(np.frombuffer(input, dtype=np.uint8))
+        log.info("POLYNOMIAL LENGTH: {}".format(len(input_arr)))
+        log.debug("BINARY: {}".format(input_arr))
 
     if args['gen']:
         generate(int(args['N']), int(args['B']), int(args['D']), args['CODE_FILE'])
     elif args['enc']:
-        log.info("POLYNOMIAL LENGTH: {}".format(len(input_arr)))
-        log.debug("BINARY: {}".format(input_arr))
         output = encode(args['CODE_FILE'], input_arr)
     elif args['dec']:
         output = decode(args['CODE_FILE'], input_arr)
