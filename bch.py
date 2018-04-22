@@ -47,7 +47,7 @@ def encode(code_file, input_arr):
 def decode(code_file, input_arr):
     code = np.load(code_file)
     bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha), Poly(code['g'][::-1], x))
-    return bch.decode(Poly(input_arr[::-1], x))
+    return bch.decode(Poly(input_arr[::-1], x))[::-1]
 
 
 if __name__ == '__main__':
