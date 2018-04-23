@@ -53,7 +53,9 @@ def encode(code_file, input_arr, block=False):
     input_arr = padding_encode(input_arr, bch.k)
     input_arr = input_arr.reshape((-1, bch.k))
     output = np.array([])
-    for b in input_arr:
+    block_count = input_arr.shape[0]
+    for i, b in enumerate(input_arr, start=1):
+        log.info("Processing block {} out of {}".format(i, block_count))
         next_output = np.array(bch.encode(Poly(b[::-1], x))[::-1])
         if len(next_output) < bch.n:
             next_output = np.pad(next_output, (0, bch.n - len(next_output)), 'constant')
@@ -72,7 +74,9 @@ def decode(code_file, input_arr, block=False):
 
     input_arr = input_arr.reshape((-1, bch.n))
     output = np.array([])
-    for b in input_arr:
+    block_count = input_arr.shape[0]
+    for i, b in enumerate(input_arr, start=1):
+        log.info("Processing block {} out of {}".format(i, block_count))
         next_output = np.array(bch.decode(Poly(b[::-1], x))[::-1])
         if len(next_output) < bch.k:
             next_output = np.pad(next_output, (0, bch.k - len(next_output)), 'constant')
