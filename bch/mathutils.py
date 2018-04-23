@@ -43,6 +43,8 @@ def power_dict(n, irr, p):
 
 
 def flatten_frac(muls, m, p, pow_dict):
+    if len(muls.args) == 0:
+        return (Poly(muls, alpha) % m).set_domain(GF(p))
     log.debug("Dividing: {}".format(muls))
     if len(muls.args) != 2:
         raise Exception("Wrong case")
