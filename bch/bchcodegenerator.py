@@ -1,5 +1,5 @@
 from bch.mathutils import *
-from sympy.polys.galoistools import gf_irreducible
+from sympy.polys.galoistools import gf_irreducible, gf_irreducible_p
 from sympy import lcm
 import logging
 
@@ -18,8 +18,16 @@ class BchCodeGenerator:
                  .format(self.n, self.q, self.m, self.b, self.d))
 
     def gen(self):
-        irr_poly = Poly([int(c.numerator) for c in gf_irreducible(self.m, self.q, ZZ)], alpha)
-        log.info("irr: {}".format(irr_poly))
+        irr_poly = Poly(alpha ** self.m + alpha + 1, alpha).set_domain(GF(self.q))
+        if gf_irreducible_p([int(c) for c in irr_poly.all_coeffs()], self.q, ZZ):
+            quotient_size = len(power_dict(self.n, irr_poly, self.q))
+        else:
+            quotient_size = 0
+        log.info("irr(q_size: {}): {}".format(quotient_size, irr_poly))
+        while quotient_size < self.n:
+            irr_poly = Poly([int(c.numerator) for c in gf_irreducible(self.m, self.q, ZZ)], alpha)
+            quotient_size = len(power_dict(self.n, irr_poly, self.q))
+            log.info("irr(q_size: {}): {}".format(quotient_size, irr_poly))
         g_poly = None
         for i in range(self.b, self.b + self.d - 1):
             if g_poly is None:
