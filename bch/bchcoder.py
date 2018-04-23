@@ -27,7 +27,7 @@ class BchCoder:
         log.info("shift_m: {}".format(shift_m_poly))
         r_poly = (shift_m_poly % self.g_poly).trunc(self.q)
         log.info("r: {}".format(r_poly))
-        return (shift_m_poly - r_poly).trunc(self.q)
+        return (shift_m_poly - r_poly).trunc(self.q).all_coeffs()
 
     def decode(self, msg_poly):
         pow_dict = power_dict(self.n, self.r_poly, self.q)
