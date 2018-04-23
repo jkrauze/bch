@@ -35,7 +35,15 @@ def minimal_poly(i, n, q, irr_poly):
     return None
 
 
-def flatten_frac(muls, m, p):
+def power_dict(n, irr, p):
+    result = dict()
+    for i in range(1, n + 1):
+        test_poly = (Poly(alpha ** i, alpha) % irr).set_domain(GF(p))
+        result[tuple(test_poly.all_coeffs())] = i
+    return result
+
+
+def flatten_frac(muls, m, p, pow_dict):
     log.debug("Dividing: {}".format(muls))
     if len(muls.args) != 2:
         raise Exception("Wrong case")
@@ -48,23 +56,29 @@ def flatten_frac(muls, m, p):
         log.debug(type(add))
         add = int(add)
         if add < 0:
-            div, rest = gf_div([1], [e.p for e in (Poly(muls.args[0] ** -add)).set_domain(GF(p)).all_coeffs()], p,
-                               ZZ)
-            log.debug("div: {}; rest: {}".format(div, rest))
-            result = Poly([ee.numerator for ee in div], alpha)
-            result = (result).trunc(p)
+            inv_poly = (Poly(muls.args[0] ** -add) % m).set_domain(GF(p))
+            if inv_poly.is_zero:
+                raise Exception("Dividing by 0")
+            result_pow = pow_dict[tuple(inv_poly.all_coeffs())]
+            if result_pow < 0:
+                result_pow += len(pow_dict)
+            result = Poly(alpha ** result_pow, alpha).set_domain(GF(p))
             log.debug("Dividing result: {}".format(result))
-            return result
+            return result % m
     if (inv.args[1] > 0):
         print(inv.args)
         raise Exception("Wrong case")
+    add_poly = (Poly(add) % m).set_domain(GF(p))
+    if add_poly.is_zero:
+        return add_poly
+    i = pow_dict[tuple(add_poly.all_coeffs())]
     inv_poly = (Poly(inv.args[0] ** -inv.args[1]) % m).set_domain(GF(p))
     if inv_poly.is_zero:
-        inv_poly = m
-    add_poly = (Poly(add)).set_domain(GF(p))
-    log.debug("dividing {} by {}".format(add_poly, inv_poly))
-    div, rest = gf_div([e.p for e in add_poly.all_coeffs()], [e.p for e in inv_poly.all_coeffs()], p, ZZ)
-    log.debug("div: {}; rest: {}".format(div, rest))
-    result = Poly([ee.numerator for ee in div], alpha).set_domain(GF(p))
+        raise Exception("Dividing by 0")
+    j = pow_dict[tuple(inv_poly.all_coeffs())]
+    result_pow = i - j
+    if result_pow < 0:
+        result_pow += len(pow_dict)
+    result = Poly(alpha ** result_pow, alpha).set_domain(GF(p))
     log.debug("Dividing result: {}".format(result))
     return result % m

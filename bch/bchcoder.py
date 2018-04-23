@@ -30,16 +30,18 @@ class BchCoder:
         return (shift_m_poly - r_poly).trunc(self.q)
 
     def decode(self, msg_poly):
+        pow_dict = power_dict(self.n, self.r_poly, self.q)
+        log.debug("field: {}".format(pow_dict))
         log.debug("msg: {}".format(msg_poly))
         s = []
         for i in range(self.b, self.b + self.d - 1):
-            s.append((Poly(msg_poly.eval(alpha ** i), alpha)).set_domain(GF(2)))
+            s.append((Poly(msg_poly.eval(alpha ** i), alpha) % self.r_poly).set_domain(GF(2)))
 
         log.debug("s: {}".format(s))
 
         error = Poly(0, alpha)
         for p in s:
-            error += (p % self.r_poly)
+            error += p
         log.debug("error: {}".format(error))
         if error.is_zero:
             coeffs = msg_poly.all_coeffs()
@@ -70,7 +72,8 @@ class BchCoder:
         l_poly = Poly(1, x).set_domain(GF(2))
         log.debug("l(0): {}".format(l_poly))
         for i, p in enumerate(L[::-1], start=1):
-            l_poly += Poly(flatten_frac(p, self.r_poly, self.q).as_expr() * x ** i, x, alpha).set_domain(GF(2))
+            l_poly += Poly(flatten_frac(p, self.r_poly, self.q, pow_dict).as_expr() * x ** i, x, alpha).set_domain(
+                GF(2))
             log.debug("l({}): {}".format(i, l_poly))
 
         coeffs = msg_poly.all_coeffs()
