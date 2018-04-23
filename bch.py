@@ -48,7 +48,7 @@ def encode(code_file, input_arr, block=False):
     if not block:
         if len(input_arr) > bch.k:
             raise Exception("Input is too large for current BCH code (max: {})".format(bch.k))
-        return bch.encode(Poly(input_arr[::-1], x)).all_coeffs()[::-1]
+        return bch.encode(Poly(input_arr[::-1], x))[::-1]
 
     input_arr = padding_encode(input_arr, bch.k)
     input_arr = input_arr.reshape((-1, bch.k))
