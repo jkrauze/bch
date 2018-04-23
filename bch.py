@@ -23,7 +23,7 @@ Options:
 """
 from docopt import docopt
 from sympy.abc import x, alpha
-from sympy import ZZ, Poly
+from sympy import Poly
 from bch.bchcodegenerator import BchCodeGenerator
 from bch.bchcoder import BchCoder
 from padding.padding import *

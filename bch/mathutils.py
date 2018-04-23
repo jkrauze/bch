@@ -1,7 +1,6 @@
 import numpy as np
 from sympy.abc import x, alpha
-from sympy.polys.galoistools import gf_div
-from sympy import ZZ, GF, Poly, Pow, Add, Symbol
+from sympy import GF, Poly, Pow, Add, Symbol
 import logging
 
 log = logging.getLogger("bchcodegenerator")
@@ -64,7 +63,7 @@ def flatten_frac(muls, m, p, pow_dict):
                 result_pow += len(pow_dict)
             result = Poly(alpha ** result_pow, alpha).set_domain(GF(p))
             log.debug("Dividing result: {}".format(result))
-            return result % m
+            return (result % m).set_domain(GF(p))
     if (inv.args[1] > 0):
         print(inv.args)
         raise Exception("Wrong case")
@@ -81,4 +80,4 @@ def flatten_frac(muls, m, p, pow_dict):
         result_pow += len(pow_dict)
     result = Poly(alpha ** result_pow, alpha).set_domain(GF(p))
     log.debug("Dividing result: {}".format(result))
-    return result % m
+    return (result % m).set_domain(GF(p))
