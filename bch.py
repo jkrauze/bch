@@ -42,7 +42,7 @@ def generate(n, b, d, code_file):
 
 
 def encode(code_file, input_arr, block=False):
-    code = np.load(code_file)
+    code = np.load(code_file, allow_pickle=True)
     bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha),
                    Poly(code['g'][::-1], x))
     if not block:
@@ -64,7 +64,7 @@ def encode(code_file, input_arr, block=False):
 
 
 def decode(code_file, input_arr, block=False):
-    code = np.load(code_file)
+    code = np.load(code_file, allow_pickle=True)
     bch = BchCoder(int(code['n']), int(code['b']), int(code['d']), Poly(code['r'][::-1], alpha),
                    Poly(code['g'][::-1], x))
     if not block:
